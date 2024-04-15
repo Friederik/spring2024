@@ -20,12 +20,12 @@ class Spring2024ApplicationTests {
     void ArchitectureRule() {
         layeredArchitecture().consideringAllDependencies()
 
-                .layer("Domain").definedBy("com.javaspring.spring2024.domain..")
-                .layer("Application").definedBy("com.javaspring.spring2024.app..")
-                .layer("Controllers").definedBy("com.javaspring.spring2024.controller..")
+                .layer("domain").definedBy("com.javaspring.spring2024.domain..")
+                .layer("application").definedBy("com.javaspring.spring2024.application..")
+                .layer("extern").definedBy("com.javaspring.spring2024.extern..")
 
-                .whereLayer("Application").mayOnlyBeAccessedByLayers("Application", "Controllers")
-                .whereLayer("Controllers").mayOnlyBeAccessedByLayers("Controllers")
+                .whereLayer("application").mayOnlyBeAccessedByLayers("application", "extern")
+                .whereLayer("extern").mayOnlyBeAccessedByLayers("extern")
 
                 .check(classes);
     }
