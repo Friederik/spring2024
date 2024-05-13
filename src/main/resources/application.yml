@@ -1,0 +1,31 @@
+server:
+  port: 8085
+
+spring:
+  config:
+    activate:
+      on-profile: development
+url: jdbc:mysql://localhost:3306/db_dev
+name: dev
+password: dev
+driver-class-name: com.mysql.cj.jdbc.Driver
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+url: jdbc:mysql://localhost:3306/db_test
+name: test
+password: test
+driver-class-name: com.mysql.cj.jdbc.Driver
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+url: jdbc:mysql://localhost:3306/db_prod
+name: prod
+password: prod
+driver-class-name: com.mysql.cj.jdbc.Driver
