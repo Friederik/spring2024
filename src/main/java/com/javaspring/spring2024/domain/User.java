@@ -1,33 +1,54 @@
 package com.javaspring.spring2024.domain;
 
 
+import jakarta.persistence.*;
+import lombok.*;
+
 /**
  * Сущность пользователя.
  */
+@Entity
+@Table(name = "users")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User {
 
     /**
      * Номер пользователя.
      */
-    private String userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Long userId;
 
     /**
      * Фамилия пользователя.
      */
+    @Setter
+    @Column(name = "user_lastname")
     private String lastName;
 
     /**
      * Имя пользователя.
      */
+    @Setter
+    @Column(name = "user_firstname")
     private String firstName;
 
-    /**
-     * Пароль пользователя.
-     */
+    //TODO авторизация
+    /*
+      Пароль пользователя.
+
+    @
     private String password;
+     */
 
     /**
      * Рейтинг пользователя.
      */
-    private float rating;
+    @Setter
+    @Column(name = "user_rating")
+    private Float rating;
 }

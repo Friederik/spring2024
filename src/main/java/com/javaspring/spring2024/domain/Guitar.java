@@ -1,7 +1,6 @@
 package com.javaspring.spring2024.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 /**
@@ -10,7 +9,6 @@ import lombok.*;
 @Entity
 @Table(name = "guitars")
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -19,45 +17,58 @@ public class Guitar {
     /**
      * Уникальный идентификатор гитары.
      */
-    private String guitarId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "guitar_id")
+    private Long guitarId;
 
     /**
      * Название гитары.
      */
+    @Setter
+    @Column(name = "guitar_name")
     private String name;
 
     /**
      * Тип гитары.
      */
+    @Setter
+    @Column(name = "guitar_type")
     private String type;
 
     /**
      * Производитель гитары.
      */
+    @Setter
+    @Column(name = "manufacturer")
     private String manufacturer;
 
     /**
      * Дерево из которого сделан гриф гитары.
      */
-    private String woodBoard;
+    @Setter
+    @Column(name = "board_wood")
+    private String boardWood;
 
     /**
      * Дерево из которого сделана дека гитары.
      */
-    private String woodDeck;
+    @Setter
+    @Column(name = "deck_wood")
+    private String deckWood;
 
     /**
      * Рейтинг гитары.
      */
+    @Setter
+    @Column(name = "guitar_rating")
     private float rating;
 
     /**
-     * Рейтинг гитары.
+     * Состояние гитары.
      */
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(name = "condition")
     private Condition condition;
-
-    /**
-     * Находиться ли гитара  в заказе.
-     */
-    private String orderId;
 }
