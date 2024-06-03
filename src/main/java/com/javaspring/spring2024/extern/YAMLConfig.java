@@ -20,7 +20,7 @@ public class YAMLConfig {
     private String url;
     @Getter
     @Setter
-    private String name;
+    private String username;
     @Getter
     @Setter
     private String password;

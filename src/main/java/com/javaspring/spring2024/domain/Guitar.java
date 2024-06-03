@@ -10,7 +10,7 @@ import lombok.*;
 @Table(name = "guitars")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class Guitar {
 
@@ -20,12 +20,11 @@ public class Guitar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "guitar_id")
-    private Long guitarId;
+    private Long id;
 
     /**
      * Название гитары.
      */
-    @Setter
     @Column(name = "guitar_name")
     private String name;
 
@@ -40,7 +39,7 @@ public class Guitar {
      * Производитель гитары.
      */
     @Setter
-    @Column(name = "manufacturer")
+    @Column(name = "guitar_manufacturer")
     private String manufacturer;
 
     /**
@@ -69,6 +68,11 @@ public class Guitar {
      */
     @Setter
     @Enumerated(EnumType.STRING)
-    @Column(name = "condition")
+    @Column(name = "guitar_condition")
     private Condition condition;
+
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(name = "guitar_order_status")
+    private OrderStatus orderStatus;
 }

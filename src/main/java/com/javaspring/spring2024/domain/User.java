@@ -21,7 +21,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long userId;
+    private Long id;
 
     /**
      * Фамилия пользователя.
@@ -51,4 +51,12 @@ public class User {
     @Setter
     @Column(name = "user_rating")
     private Float rating;
+
+    /**
+     * Уровень прав пользователя.
+     */
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_permission_level")
+    private Permission permissionLevel;
 }

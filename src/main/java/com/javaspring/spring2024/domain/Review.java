@@ -25,7 +25,7 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
-    private Long reviewId;
+    private Long id;
 
     /**
      * Номер гитары, на которую делается оценка. Если пустая, то оценка на пользователя.

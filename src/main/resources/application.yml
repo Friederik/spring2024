@@ -15,10 +15,17 @@ spring:
   config:
     activate:
       on-profile: test
-url: jdbc:mysql://localhost:3306/db_test
-name: test
-password: test
-driver-class-name: com.mysql.cj.jdbc.Driver
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:file:/db/test
+    username: test
+    password: test
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console.enabled: true
 
 ---
 spring:

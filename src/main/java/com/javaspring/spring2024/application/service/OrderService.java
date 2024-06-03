@@ -3,14 +3,21 @@ package com.javaspring.spring2024.application.service;
 import com.javaspring.spring2024.application.repository.OrderRepository;
 import com.javaspring.spring2024.domain.Order;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
 
-    public Order placeOrder(Order order) {
+    /**
+     * Создает новый заказ в базу данных.
+     *
+     * @param order Сущность заказа для создания.
+     * @return Сущность созданного заказа.
+     */
+    public Order createOrder(Order order) {
         if (order == null) throw new IllegalArgumentException("Аргумент order функции createOrder не может быть null");
         try {
             orderRepository.save(order);
