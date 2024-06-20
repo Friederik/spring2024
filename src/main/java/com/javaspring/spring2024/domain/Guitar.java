@@ -71,6 +71,9 @@ public class Guitar {
     @Column(name = "guitar_condition")
     private Condition condition;
 
+    /**
+     *
+     */
     @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "guitar_order_status")

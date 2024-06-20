@@ -3,13 +3,14 @@ package com.javaspring.spring2024.application.service;
 import com.javaspring.spring2024.application.repository.GuitarRepository;
 import com.javaspring.spring2024.application.repository.OrderRepository;
 import com.javaspring.spring2024.application.repository.ReviewRepository;
-import com.javaspring.spring2024.domain.Guitar;
-import com.javaspring.spring2024.domain.Order;
-import com.javaspring.spring2024.domain.OrderStatus;
-import com.javaspring.spring2024.domain.Review;
+import com.javaspring.spring2024.application.repository.UserRepository;
+import com.javaspring.spring2024.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ public class GuitarService {
     private final GuitarRepository guitarRepository;
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
 
     /**
      * Создает новую гитару в базе данных.
@@ -91,25 +93,5 @@ public class GuitarService {
                 guitar.get().setRating(fullRating / reviews.size());
             }
         }
-    }
-
-    /**
-     * Возвращает список доступных к аренде гитар.
-     *
-     * @return Гитары, которые возможно взять в аренду.
-     */
-    public List<Guitar> getAvailableGuitars() {
-        List<Guitar> guitars = guitarRepository.findAll();
-        List<Guitar> availableGuitars = new java.util.ArrayList<>(List.of());
-        guitars.forEach(guitar -> {
-            List<Order> ordersNotCompleted = orderRepository.findByGuitarIdAndOrderStatusNotOrderByIdDesc(guitar.getId(), OrderStatus.COMPLETED);
-            if(ordersNotCompleted.isEmpty()) {
-                guitar.setOrderStatus(OrderStatus.COMPLETED);
-                availableGuitars.add(guitar);
-            } else {
-                guitar.setOrderStatus(ordersNotCompleted.get(0).getOrderStatus());
-            }
-        });
-        return availableGuitars;
     }
 }

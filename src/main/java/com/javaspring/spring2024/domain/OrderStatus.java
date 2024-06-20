@@ -5,9 +5,9 @@ package com.javaspring.spring2024.domain;
  */
 public enum OrderStatus {
     /**
-     * В предоставлении гитары отказано
+     * Гитара ожидает арендатора.
      */
-    REJECTED,
+    WAITING,
     /**
      * Гитара сдана в аренду
      */
