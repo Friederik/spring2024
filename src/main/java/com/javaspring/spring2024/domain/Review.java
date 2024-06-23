@@ -54,5 +54,5 @@ public class Review {
      */
     @Setter
     @Column(name = "rating")
-    private Short rating;
+    private Integer rating;
 }

@@ -2,16 +2,18 @@ package com.javaspring.spring2024.application.service;
 
 import com.javaspring.spring2024.application.repository.GuitarRepository;
 import com.javaspring.spring2024.application.repository.OrderRepository;
+import com.javaspring.spring2024.application.repository.ReviewRepository;
 import com.javaspring.spring2024.application.repository.UserRepository;
-import com.javaspring.spring2024.domain.Guitar;
-import com.javaspring.spring2024.domain.Order;
-import com.javaspring.spring2024.domain.OrderStatus;
-import com.javaspring.spring2024.domain.User;
+import com.javaspring.spring2024.domain.*;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final GuitarRepository guitarRepository;
     private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
 
     /**
      * Создает новый заказ в базу данных.
@@ -109,8 +112,7 @@ public class OrderService {
         } else if(checkUserAvailability(userId) >= 2) {
             throw new IllegalArgumentException("У пользователя с id " + guitarId + " нет возможности взять заказ.");
         }
-        else {
-
+        else if(user.get().getRating() >= guitar.get().getRating()){
             Order order = Order.builder()
                     .user(user.get())
                     .guitar(guitar.get())
@@ -119,5 +121,110 @@ public class OrderService {
                     .build();
             orderRepository.save(order);
         }
+        else {
+            throw new IllegalArgumentException("Рейтинг пользователя слишком мал для этой гитары.");
+        }
+    }
+
+    /**
+     * Выдает гитару, используя идентификатор заказа.
+     *
+     * @param orderId Идентификатор заказа.
+     */
+    public void takingGuitar(Long orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if(order.isEmpty()) {
+            throw new IllegalArgumentException("Заказ с id " + orderId + " не найден.");
+        }
+        else if(order.get().getOrderStatus() == OrderStatus.WAITING){
+            order.get().setOrderStatus(OrderStatus.ACTIVE);
+        }
+        else {
+            throw new IllegalArgumentException("Данный заказа не готов к выдаче.");
+        }
+    }
+
+    /**
+     * Возвращает гитару и перенаправляет ее на проверку, используя идентификатор заказа.
+     *
+     * @param orderId Идентификатор заказа.
+     */
+    public void returnToRatingGuitar(Long orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if(order.isEmpty()) {
+            throw new IllegalArgumentException("Заказ с id " + orderId + " не найден.");
+        }
+        else if(order.get().getOrderStatus() == OrderStatus.ACTIVE) {
+            order.get().setOrderStatus(OrderStatus.FULFILLED);
+        }
+        else {
+            throw new IllegalArgumentException("Гитара не находится в аренде.");
+        }
+    }
+
+    /**
+     * Возвращает гитару с оценки в магазин, используя идентификатор заказа.
+     *
+     * @param orderId Идентификатор заказа.
+     */
+    public void returnToShopGuitar(Long orderId, int guitarRating, int userRating) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if(order.isEmpty()) {
+            throw new IllegalArgumentException("Заказ с id " + orderId + " не найден.");
+        }
+        if(guitarRating < 1 || guitarRating > 10) {
+            throw new IllegalArgumentException("Некоректные значения рейтинга гитары.");
+        }
+        if(userRating < 1 || userRating > 10) {
+            throw new IllegalArgumentException("Некоректные значения рейтинга пользователя.");
+        }
+        Guitar guitar = order.get().getGuitar();
+        User user = order.get().getUser();
+        if(order.get().getOrderStatus() == OrderStatus.FULFILLED) {
+            Review guitarReview = Review.builder()
+                    .guitar(guitar)
+                    .user(user)
+                    .dateOfOrder(LocalDateTime.now())
+                    .rating(guitarRating)
+                    .build();
+            int totalRating = calculateRating(order.get(), userRating);
+            Review userReview = Review.builder()
+                    .guitar(null)
+                    .user(user)
+                    .dateOfOrder(LocalDateTime.now())
+                    .rating(totalRating)
+                    .build();
+            reviewRepository.save(guitarReview);
+            reviewRepository.save(userReview);
+            order.get().setOrderStatus(OrderStatus.COMPLETED);
+        }
+        else {
+            throw new IllegalArgumentException("Гитара не находится на оценке.");
+        }
+    }
+
+    /**
+     * Высчитывает рейтинг, используя рейтинг, поставленный пользователю, и дату сдачи гитары.
+     *
+     * @param order Заказ, который проходит диагностику.
+     * @param userRating Рейтинг, поставленный пользователю.
+     * @return Итоговый рейтинг пользователя.
+     */
+    public int calculateRating(Order order, int userRating) {
+        LocalDateTime time = LocalDateTime.now();
+        LocalDateTime returnTime = order.getDateOfOrder();
+        int daysFromReturn = Period.between(returnTime.toLocalDate(), time.toLocalDate()).getDays();
+        if(daysFromReturn > 5) {
+            daysFromReturn = 5;
+        } else if(daysFromReturn < -5) {
+            daysFromReturn = -5;
+        }
+        userRating = userRating - daysFromReturn;
+        if(userRating > 10) {
+            userRating = 10;
+        } else  if(userRating < 0) {
+            userRating = 0;
+        }
+        return userRating;
     }
 }

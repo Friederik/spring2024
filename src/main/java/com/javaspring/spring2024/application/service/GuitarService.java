@@ -32,6 +32,7 @@ public class GuitarService {
         if (guitar == null) throw new IllegalArgumentException("Аргумент guitar функции addGuitar не может быть null");
         try {
             guitarRepository.save(guitar);
+            updateGuitarRating(guitar);
             return guitar;
         } catch (Exception e) {
             throw new RuntimeException("Возникла ошибка при сохранении гитары в репозиторий.", e);
@@ -84,7 +85,15 @@ public class GuitarService {
         } else {
             List<Review> reviews = reviewRepository.findAllByGuitarId(guitarId);
             if(reviews.isEmpty()) {
-                guitar.get().setRating(5.0f);
+                if(guitar.get().getCondition() == Condition.BAD) {
+                    guitar.get().setRating(2.5f);
+                }
+                else if(guitar.get().getCondition() == Condition.OKAY) {
+                    guitar.get().setRating(5.0f);
+                }
+                else if(guitar.get().getCondition() == Condition.ALRIGHT) {
+                    guitar.get().setRating(7.5f);
+                }
             } else {
                 float fullRating = 0;
                 for(Review review : reviews) {
@@ -93,5 +102,40 @@ public class GuitarService {
                 guitar.get().setRating(fullRating / reviews.size());
             }
         }
+    }
+
+    /**
+     * Возвращает список доступных к аренде гитар.
+     *
+     * @return Гитары, которые возможно взять в аренду.
+     */
+    public List<Guitar> getAvailableGuitars() {
+        List<Guitar> guitars = guitarRepository.findAll();
+        List<Guitar> availableGuitars = new java.util.ArrayList<>(List.of());
+        guitars.forEach(guitar -> {
+            if(checkGuitarAvailability(guitar.getId())) {
+                guitar.setOrderStatus(OrderStatus.COMPLETED);
+                availableGuitars.add(guitar);
+            } else {
+                Order lastOrder = orderRepository.findTopByGuitarIdOrderByIdDesc(guitar.getId());
+                guitar.setOrderStatus(lastOrder.getOrderStatus());
+            }
+        });
+        return availableGuitars;
+    }
+
+    /**
+     * Проверяет доступна ли гитара к аренде.
+     *
+     * @param guitarId Идентификатор гитары, которая проверяется на доступность.
+     * @return Доступна ли гитара.
+     */
+    public boolean checkGuitarAvailability(Long guitarId) {
+        Optional<Guitar> guitar = guitarRepository.findById(guitarId);
+        if(guitar.isEmpty()) {
+            throw new IllegalArgumentException("Гитара с id " + guitarId + " не найдена.");
+        }
+        List<Order> ordersNotCompleted = orderRepository.findByGuitarIdAndOrderStatusNotOrderByIdDesc(guitarId, OrderStatus.COMPLETED);
+        return ordersNotCompleted.isEmpty();
     }
 }

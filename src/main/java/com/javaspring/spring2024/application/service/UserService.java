@@ -28,6 +28,7 @@ public class UserService {
     public User createUser(User user) {
         if (user == null) throw new IllegalArgumentException("Аргумент user функции createUser не может быть null");
         try {
+            user.setRating(5.0f);
             userRepository.save(user);
             return user;
         } catch (Exception e) {
@@ -90,5 +91,20 @@ public class UserService {
                 user.get().setRating(fullRating / reviews.size());
             }
         }
+    }
+
+    /**
+     * Находит количество заказов у пользователя, используя идентификатор пользователя.
+     *
+     * @param userId Идентификатор пользователя, который проверяется.
+     * @return Количество заказов у заданного пользователя.
+     */
+    public int checkUserAvailability(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isEmpty()) {
+            throw new IllegalArgumentException("Пользователя с id " + userId + " не найден");
+        }
+        List<Order> ordersOfUser = orderRepository.findByUserIdAndOrderStatusNotOrderByIdDesc(userId, OrderStatus.COMPLETED);
+        return ordersOfUser.size();
     }
 }
