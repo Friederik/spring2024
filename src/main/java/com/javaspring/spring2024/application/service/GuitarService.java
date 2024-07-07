@@ -31,8 +31,16 @@ public class GuitarService {
     public Guitar createGuitar(Guitar guitar) {
         if (guitar == null) throw new IllegalArgumentException("Аргумент guitar функции addGuitar не может быть null");
         try {
+            if(guitar.getCondition() == Condition.BAD) {
+                guitar.setRating(2.5f);
+            }
+            else if(guitar.getCondition() == Condition.OKAY) {
+                guitar.setRating(5.0f);
+            }
+            else if(guitar.getCondition() == Condition.ALRIGHT) {
+                guitar.setRating(7.5f);
+            }
             guitarRepository.save(guitar);
-            updateGuitarRating(guitar);
             return guitar;
         } catch (Exception e) {
             throw new RuntimeException("Возникла ошибка при сохранении гитары в репозиторий.", e);
@@ -122,6 +130,15 @@ public class GuitarService {
             }
         });
         return availableGuitars;
+    }
+
+    /**
+     * Возвращает список всех зарегистрированных гитар.
+     *
+     * @return Все зарегистрированные гитары.
+     */
+    public List<Guitar> getGuitars() {
+        return guitarRepository.findAll();
     }
 
     /**
